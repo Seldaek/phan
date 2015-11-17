@@ -22,6 +22,15 @@ class Phan {
     use \Phan\Analyze\ParentClassExists;
     use \Phan\Analyze\ParentConstructorCalled;
 
+    private $thread_pool = null;
+
+    /**
+     *
+     */
+    public function __construct() {
+        $this->thread_pool = new \Pool(4);
+    }
+
     /**
      * Analyze the given set of files and emit any issues
      * found to STDOUT.
@@ -65,6 +74,8 @@ class Phan {
                 $code_base->setParseUpToDateForFile($file_path);
             }
         }
+
+        $this->thread_pool->shutdown();
 
         // Store a serialized version of the code base if there
         // is a configured serialized file path. This allows
@@ -124,7 +135,7 @@ class Phan {
     public function parseFile(
         CodeBase $code_base,
         string $file_path
-    ) : Context {
+    ) {
 
         // Convert the file to an Abstract Syntax Tree
         // before passing it on to the recursive version
@@ -147,66 +158,12 @@ class Phan {
             return $context;
         }
 
-        return $this->parseNodeInContext($node, $context);
-    }
+        $this->thread_pool->submit(
+            new ParseThread($node, $context)
+        );
 
-    /**
-     * Parse the given node in the given context populating
-     * the code base within the context as a side effect. The
-     * returned context is the new context from within the
-     * given node.
-     *
-     * @param Node $node
-     * A node to parse and scan for errors
-     *
-     * @param Context $context
-     * The context in which this node exists
-     *
-     * @return Context
-     * The context from within the node is returned
-     */
-    public function parseNodeInContext(
-        Node $node,
-        Context $context
-    ) : Context {
-
-        // Visit the given node populating the code base
-        // with anything we learn and get a new context
-        // indicating the state of the world within the
-        // given node
-        $context =
-            (new Element($node))->acceptKindVisitor(
-                new ParseVisitor($context
-                    ->withLineNumberStart($node->lineno ?? 0)
-                    ->withLineNumberEnd($node->endLineno ?? 0)
-                )
-            );
-
-        assert(!empty($context), 'Context cannot be null');
-
-        // Recurse into each child node
-        $child_context = $context;
-        foreach($node->children as $child_node) {
-
-            // Skip any non Node children.
-            if (!($child_node instanceof Node)) {
-                continue;
-            }
-
-            // Step into each child node and get an
-            // updated context for the node
-            $child_context =
-                $this->parseNodeInContext(
-                    $child_node,
-                    $child_context
-                );
-
-            assert(!empty($child_context),
-                'Context cannot be null');
-        }
-
-        // Pass the context back up to our parent
-        return $context;
+        // (new ParseThread($node, $context))->run();
+        // return $this->parseNodeInContext($node, $context);
     }
 
     /**

@@ -21,5 +21,4 @@ assert_options(ASSERT_WARNING,  false);
 assert_options(ASSERT_CALLBACK,
     function (string $script, int $line, $expression, $message) {
         print "$script:$line ($expression) $message\n";
-        // debug_print_backtrace(0, 4);
     });

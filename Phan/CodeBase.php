@@ -283,7 +283,7 @@ class CodeBase {
      */
     private function getFileForFile(string $file_path) : File {
         if (empty($this->file_map[$file_path])) {
-            $this->file_map[$file_path] = new File($file_path);
+            $this->file_map[$file_path] = new \Phan\CodeBase\File($file_path);
         }
 
         return $this->file_map[$file_path];
@@ -352,6 +352,14 @@ class CodeBase {
     }
 
     /**
+     * @return int
+     * The version number of this code base
+     */
+    public function getVersion() : int {
+        return $this->code_base_version ?? -1;
+    }
+
+    /**
      * Store the given code base to the location defined in the
      * configuration (serialized_code_base_file).
      *
@@ -387,14 +395,6 @@ class CodeBase {
     }
 
     /**
-     * @return int
-     * The version number of this code base
-     */
-    public function getVersion() : int {
-        return $this->code_base_version ?? -1;
-    }
-
-    /**
      * @return CodeBase|bool
      * A stored code base if its successful or false if
      * unserialize fucks up
@@ -404,11 +404,15 @@ class CodeBase {
             throw new \Exception("No serialized_code_base_file defined");
         }
 
-        $code_base = unserialize(
-            file_get_contents(
-                Config::get()->serialized_code_base_file
-            )
+        print "reading\n";
+        $serialized_code_base = file_get_contents(
+            Config::get()->serialized_code_base_file
         );
+
+
+        print "deserializing\n";
+        $code_base = unserialize($serialized_code_base);
+        print "done\n";
 
         if ($code_base->getVersion() !== self::CODE_BASE_VERSION) {
             throw new \Exception(

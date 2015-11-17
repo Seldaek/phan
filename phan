@@ -15,6 +15,12 @@ use \Phan\Config;
 use \Phan\Log;
 use \Phan\Phan;
 
+if (extension_loaded("pthreads")) {
+    echo "Using pthreads\n";
+} else {
+    echo "Using polyfill\n";
+}
+
 // Create our CLI interface and load arguments
 $cli = new CLI();
 
