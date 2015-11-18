@@ -17,19 +17,19 @@ class Clazz extends TypedStructuralElement {
     use \Phan\Memoize;
 
     /**
-     * @var \Phan\Language\FQSEN
+     * @var FQSEN|null
      */
     private $parent_class_fqsen = null;
 
     /**
-     * @var \Phan\Language\FQSEN[]
+     * @var FQSEN[]
      * A possibly empty list of interfaces implemented
      * by this class
      */
     private $interface_fqsen_list = [];
 
     /**
-     * @var \Phan\Language\FQSEN[]
+     * @var FQSEN[]
      * A possibly empty list of traits used by this class
      */
     private $trait_fqsen_list = [];
@@ -195,7 +195,7 @@ class Clazz extends TypedStructuralElement {
                 );
 
             $clazz->property_map[
-                $property_element->getFQSEN()->__toString()
+                (string)$property_element->getFQSEN()
             ] = $property_element;
         }
 
@@ -216,7 +216,7 @@ class Clazz extends TypedStructuralElement {
         }
 
         foreach($class->getConstants() as $name => $value) {
-            $clazz->constant_map[$name] =
+            $clazz->constant_map[(string)$name] =
                 new Constant(
                     $context,
                     Comment::none(),
@@ -407,7 +407,7 @@ class Clazz extends TypedStructuralElement {
     public function addMethod(Method $method) {
         $name = strtolower($method->getName());
 
-        if (empty($this->method_map[$name])) {
+        if (empty($this->method_map[(string)$name])) {
             $this->method_map[$name] = $method;
         }
     }

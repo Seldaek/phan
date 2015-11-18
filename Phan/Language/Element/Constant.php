@@ -6,7 +6,7 @@ use \Phan\Language\Context;
 use \Phan\Language\UnionType;
 
 /**
- *
+ * A constant like `const INHERENTLY_FUNNY = 42`.
  */
 class Constant extends TypedStructuralElement {
 

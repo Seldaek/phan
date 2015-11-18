@@ -14,7 +14,8 @@
     ],
     "require": {
         "php": ">=7.0",
-        "ext-ast": "*"
+        "ext-ast": "*",
+        "apache/thrift": "^0.9.3"
     },
     "require-dev": {
         "phpunit/phpunit": "5.0.*"

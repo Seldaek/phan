@@ -28,6 +28,7 @@ class FQSEN {
      * string otherwise.
      */
     private $method_name = '';
+
     /**
      *
      * @var string

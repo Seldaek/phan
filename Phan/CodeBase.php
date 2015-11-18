@@ -80,18 +80,18 @@ class CodeBase {
         array $internal_trait_name_list,
         array $internal_function_name_list
     ) {
+        // Set a version on this class so that we can
+        // error out when reading old versions of serialized
+        // files
+        $this->code_base_version =
+            CodeBase::CODE_BASE_VERSION;
+
         $this->resetSummary();
         $this->addClassesByNames($internal_class_name_list);
         $this->addClassesByNames($internal_interface_name_list);
         $this->addClassesByNames($internal_trait_name_list);
         $this->addFunctionsByNames($internal_function_name_list);
         $this->resetSummary();
-
-        // Set a version on this class so that we can
-        // error out when reading old versions of serialized
-        // files
-        $this->code_base_version =
-            CodeBase::CODE_BASE_VERSION;
     }
 
     /**
@@ -230,7 +230,28 @@ class CodeBase {
      * @return null
      */
     private function addClassesByNames(array $class_name_list) {
+
         foreach ($class_name_list as $i => $class_name) {
+
+            if (in_array($class_name, [
+                'DateTimeImmutable',
+                'DateTimeZone',
+                'DateInterval',
+                'DatePeriod',
+                'LibXMLError',
+                'SQLite3',
+                'SQLite3Stmt',
+                'Closure',
+            ])) {
+                continue;
+            }
+
+            print "$class_name\t";
+            $this->store();
+            $code_base = CodeBase::fromStoredCodeBase();
+            print "done\n";
+
+
             $clazz = Clazz::fromClassName($this, $class_name);
             $this->class_map[(string)$clazz->getFQSEN()] = $clazz;
         }
@@ -366,7 +387,8 @@ class CodeBase {
 
         return file_put_contents(
             Config::get()->serialized_code_base_file,
-            serialize($this),
+            msgpack_pack($this),
+            // serialize($this),
             LOCK_EX
         );
     }
@@ -404,7 +426,14 @@ class CodeBase {
             throw new \Exception("No serialized_code_base_file defined");
         }
 
+        /*
         $code_base = unserialize(
+            file_get_contents(
+                Config::get()->serialized_code_base_file
+            )
+        );
+         */
+        $code_base = msgpack_unpack(
             file_get_contents(
                 Config::get()->serialized_code_base_file
             )

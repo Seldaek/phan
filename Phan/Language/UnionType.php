@@ -619,9 +619,11 @@ class UnionType {
      *
      * @see \Serializable
      */
+    /*
     public function serialize() : string {
         return (string)$this;
     }
+     */
 
     /**
      * As per the Serializable interface
@@ -634,9 +636,11 @@ class UnionType {
      *
      * @see \Serializable
      */
+    /*
     public function unserialize($serialized) {
         return self::fromFullyQualifiedString($serialized);
     }
+     */
 
     /**
      * @return string

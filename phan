@@ -31,6 +31,20 @@ if (CodeBase::storedCodeBaseExists()) {
     );
 }
 
+$code_base = new CodeBase(
+    $internal_class_name_list,
+    $internal_interface_name_list,
+    $internal_trait_name_list,
+    $internal_function_name_list
+);
+
+ini_set('msgpack.php_only', 0);
+
+print "start\n";
+$code_base->store();
+$code_base = CodeBase::fromStoredCodeBase();
+print "done\n";
+
 // Analyze the file list provided via the CLI
 (new Phan)->analyzeFileList(
     $code_base,

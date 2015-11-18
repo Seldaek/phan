@@ -13,7 +13,7 @@ class TypedStructuralElement extends StructuralElement {
      * @var string
      * The name of the typed structural element
      */
-    private $name;
+    private $name = null;
 
     /**
      * @var UnionType
