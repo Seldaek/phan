@@ -25,7 +25,7 @@ use \Phan\Language\Type\{
 use \Phan\Language\UnionType;
 use \ast\Node;
 
-class Type {
+class Type implements \Serializable {
     use \Phan\Memoize;
 
     /**
@@ -33,13 +33,13 @@ class Type {
      * The namespace of this type such as '\' or
      * '\Phan\Language'
      */
-    protected $namespace = null;
+    protected $namespace;
 
     /**
      * @var string
      * The name of this type such as 'int' or 'MyClass'
      */
-    protected $name = null;
+    protected $name;
 
     /**
      * @param string $name
@@ -143,32 +143,58 @@ class Type {
         string $type_name
     ) : Type {
 
+        $is_generic = false;
+        if (false !== ($pos = strpos($type_name, '[]'))) {
+            $type_name = substr($type_name, 0, $pos);
+            $is_generic = true;
+        }
+
         $type_name =
             self::canonicalNameFromName($type_name);
 
+        $type = null;
         switch ($type_name) {
         case 'array':
-            return \Phan\Language\Type\ArrayType::instance();
+            $type = \Phan\Language\Type\ArrayType::instance();
+            break;
         case 'bool':
-            return \Phan\Language\Type\BoolType::instance();
+            $type = \Phan\Language\Type\BoolType::instance();
+            break;
         case 'callable':
-            return \Phan\Language\Type\CallableType::instance();
+            $type = \Phan\Language\Type\CallableType::instance();
+            break;
         case 'float':
-            return \Phan\Language\Type\FloatType::instance();
+            $type = \Phan\Language\Type\FloatType::instance();
+            break;
         case 'int':
-            return \Phan\Language\Type\IntType::instance();
+            $type = \Phan\Language\Type\IntType::instance();
+            break;
         case 'mixed':
-            return \Phan\Language\Type\MixedType::instance();
+            $type = \Phan\Language\Type\MixedType::instance();
+            break;
         case 'null':
-            return \Phan\Language\Type\NullType::instance();
+            $type = \Phan\Language\Type\NullType::instance();
+            break;
         case 'object':
-            return \Phan\Language\Type\ObjectType::instance();
+            $type = \Phan\Language\Type\ObjectType::instance();
+            break;
         case 'resource':
-            return \Phan\Language\Type\ResourceType::instance();
+            $type = \Phan\Language\Type\ResourceType::instance();
+            break;
         case 'string':
-            return \Phan\Language\Type\StringType::instance();
+            $type = \Phan\Language\Type\StringType::instance();
+            break;
         case 'void':
-            return \Phan\Language\Type\VoidType::instance();
+            $type = \Phan\Language\Type\VoidType::instance();
+            break;
+        }
+
+        if ($type) {
+            if ($is_generic) {
+                return new \Phan\Language\Type\GenericArrayType($type);
+            }
+
+            return $type;
         }
 
         assert(false,
@@ -190,8 +216,10 @@ class Type {
     ) : Type {
         assert(!empty($fully_qualified_string),
             "Type cannot be empty");
-        assert('\\' === $fully_qualified_string[0],
-            "fromFullyQualifiedString() called without fully qualified string '$fully_qualified_string'");
+
+        if ('\\' !== $fully_qualified_string[0]) {
+            return self::fromInternalTypeName($fully_qualified_string);
+        }
 
         list($namespace, $type_name) =
             self::namespaceAndTypeFromString(
@@ -635,22 +663,6 @@ class Type {
     }
 
     /**
-     * @return string
-     * A human readable representation of this type
-     */
-    public function __toString() {
-        if (!$this->hasNamespace()) {
-            return $this->name;
-        }
-
-        if ('\\' === $this->namespace) {
-            return '\\' . $this->name;
-        }
-
-        return "{$this->namespace}\\{$this->name}";
-    }
-
-    /**
      * @param string $type_name
      * Any type name
      *
@@ -697,4 +709,34 @@ class Type {
 
         return [$namespace, $class_name];
     }
+
+    /**
+     * @return string
+     * A human readable representation of this type
+     */
+    public function __toString() {
+        if (!$this->hasNamespace()) {
+            return $this->name;
+        }
+
+        if ('\\' === $this->namespace) {
+            return '\\' . $this->name;
+        }
+
+        return "{$this->namespace}\\{$this->name}";
+    }
+
+    public function serialize() {
+        return serialize([
+            $this->namespace,
+            $this->name
+        ]);
+    }
+
+    public function unserialize($serialized) {
+        $pair = unserialize($serialized);
+        $this->namespace = $pair[0];
+        $this->name = $pair[1];
+    }
+
 }

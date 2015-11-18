@@ -82,4 +82,14 @@ trait Memoize {
     protected function memoizeFlushAll() {
         $this->memoized_data = [];
     }
+
+    /**
+     * By default, store everything but the memoized data
+     */
+    public function __sleep() : array {
+        return array_diff(
+            array_keys(get_object_vars($this)),
+            ['memoized_data']
+        );
+    }
 }

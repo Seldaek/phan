@@ -111,6 +111,17 @@ class Context {
     }
 
     /**
+     * @param CodeBase $code_base
+     * Set the code base within which this context
+     * exists
+     *
+     * @return null
+     */
+    public function setCodeBase(CodeBase $code_base) {
+        $this->code_base = $code_base;
+    }
+
+    /**
      * @param string $file
      * The path to the file in which this element is defined
      *
@@ -562,4 +573,5 @@ class Context {
             . ' in scope ' . (string)$this->getScopeFQSEN()
             ;
     }
+
 }

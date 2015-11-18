@@ -20,7 +20,7 @@ use \Phan\Language\Type\{
 use \Phan\Analyze\UnionTypeVisitor;
 use \ast\Node;
 
-class UnionType {
+class UnionType implements \Serializable {
     use \Phan\Memoize;
 
     /**
@@ -36,18 +36,6 @@ class UnionType {
         foreach ($type_list as $type) {
             $this->addType($type);
         }
-    }
-
-    /**
-     * After a clone is called on this object, clone our
-     * deep objects.
-     *
-     * @return null
-     */
-    public function __clone() {
-        $this->type_list = array_map(function(Type $type) : Type {
-            return $type ?  clone($type) : $type;
-        }, $this->type_list);
     }
 
     /**
@@ -612,30 +600,39 @@ class UnionType {
     }
 
     /**
-     * As per the Serializable interface
+     * @return array
+     * A map from builtin function name to type information
      *
-     * @return string
-     * A serialized representation of this type
-     *
-     * @see \Serializable
+     * @see \Phan\Language\Internal\FunctionSignatureMap
      */
-    public function serialize() : string {
-        return (string)$this;
+    private static function internalFunctionSignatureMap() {
+        static $map = false;
+        return $map ?:
+            ($map = require(__DIR__.'/Internal/FunctionSignatureMap.php'));
     }
 
     /**
-     * As per the Serializable interface
+     * @return array
+     * A map from builtin class names to type information
      *
-     * @param string $serialized
-     * A serialized UnionType
-     *
-     * @return UnionType
-     * A UnionType representing the given serialized form
-     *
-     * @see \Serializable
+     * @see \Phan\Language\Type\BuiltinFunctionArgumentTypes
      */
-    public function unserialize($serialized) {
-        return self::fromFullyQualifiedString($serialized);
+    private static function internalClassSignatureMap() {
+        static $map = false;
+        return $map ?:
+            ($map = require(__DIR__.'/Internal/ClassSignatureMap.php'));
+    }
+
+    /**
+     * After a clone is called on this object, clone our
+     * deep objects.
+     *
+     * @return null
+     */
+    public function __clone() {
+        $this->type_list = array_map(function(Type $type) : Type {
+            return $type ?  clone($type) : $type;
+        }, $this->type_list);
     }
 
     /**
@@ -660,28 +657,51 @@ class UnionType {
         }, $type_list));
     }
 
+    /*
+    public function serialize() {
+        // return serialize($this->type_list);
+        return serialize($this);
+    }
+
+    public function unserialize($serialized) {
+        return unserialize($serialized);
+        $array = unserialize($serialized);
+        return new UnionType();
+        return new UnionType(unserialize($serialized));
+    }
+    */
+
     /**
-     * @return array
-     * A map from builtin function name to type information
+     * As per the Serializable interface
      *
-     * @see \Phan\Language\Internal\FunctionSignatureMap
+     * @return string
+     * A serialized representation of this type
+     *
+     * @see \Serializable
      */
-    private static function internalFunctionSignatureMap() {
-        static $map = false;
-        return $map ?:
-            ($map = require(__DIR__.'/Internal/FunctionSignatureMap.php'));
+    public function serialize() : string {
+        return implode('|', array_map(function(Type $type) : string {
+            return (string)$type;
+        }, $this->type_list));
     }
 
     /**
-     * @return array
-     * A map from builtin class names to type information
+     * As per the Serializable interface
      *
-     * @see \Phan\Language\Type\BuiltinFunctionArgumentTypes
+     * @param string $serialized
+     * A serialized UnionType
+     *
+     * @return UnionType
+     * A UnionType representing the given serialized form
+     *
+     * @see \Serializable
      */
-    private static function internalClassSignatureMap() {
-        static $map = false;
-        return $map ?:
-            ($map = require(__DIR__.'/Internal/ClassSignatureMap.php'));
+    public function unserialize($serialized) {
+        if ($serialized) {
+            $this->type_list = array_map(
+                function(string $string) : Type {
+                    return Type::fromFullyQualifiedString($string);
+                }, explode('|', $serialized));
+        }
     }
-
 }

@@ -364,6 +364,14 @@ class CodeBase {
             return false;
         }
 
+        /*
+        return file_put_contents(
+            Config::get()->serialized_code_base_file,
+            json_encode($this),
+            LOCK_EX
+        );
+         */
+
         return file_put_contents(
             Config::get()->serialized_code_base_file,
             serialize($this),
@@ -417,5 +425,9 @@ class CodeBase {
         }
 
         return $code_base;
+    }
+
+    public function __sleep() : array {
+        return array_keys(get_object_vars($this));
     }
 }

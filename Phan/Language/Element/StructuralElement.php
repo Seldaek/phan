@@ -1,12 +1,11 @@
-<?php
-declare(strict_types=1);
+<?php declare(strict_types=1);
 namespace Phan\Language\Element;
 
 use \Phan\Language\Context;
 use \Phan\Language\Element\Comment;
 
 /**
- *
+ * Any structural element in PHP
  */
 class StructuralElement {
 
