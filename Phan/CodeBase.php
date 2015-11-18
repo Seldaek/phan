@@ -364,6 +364,17 @@ class CodeBase {
             return false;
         }
 
+        $transport = new \Thrift\Transport\TBufferedTransport();
+        $protocol = new \Thrift\Protocol\TBinaryProtocol($transport);
+
+        require_once('Phan_types.php');
+
+        $thrift = new \SerializedCodeBase(42);
+        $thrift->write($protocol);
+
+
+        return;
+
         return file_put_contents(
             Config::get()->serialized_code_base_file,
             serialize($this),

@@ -4,9 +4,47 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "hash": "a521e0645d9e73e2b2e48ef0d3114a11",
-    "content-hash": "708da6a285c34a44c28e944299ef65d5",
-    "packages": [],
+    "hash": "bd94d7a19c34f7c061c69ec2178cbd99",
+    "content-hash": "95deb79fd78f47e64ae9d22dce92ca55",
+    "packages": [
+        {
+            "name": "apache/thrift",
+            "version": "0.9.3",
+            "source": {
+                "type": "git",
+                "url": "https://git-wip-us.apache.org/repos/asf/thrift.git",
+                "reference": "ef5bdf0a1d11e86dbaa377a61f6a2d492578408c"
+            },
+            "require": {
+                "php": ">=5.3.0"
+            },
+            "type": "library",
+            "extra": {
+                "branch-alias": {
+                    "dev-master": "1.0.x-dev"
+                }
+            },
+            "autoload": {
+                "psr-0": {
+                    "Thrift": "lib/php/lib/"
+                }
+            },
+            "notification-url": "http://packagist.org/downloads/",
+            "license": [
+                "Apache-2.0"
+            ],
+            "authors": [
+                {
+                    "name": "Apache Thrift Developers",
+                    "email": "dev@thrift.apache.org",
+                    "homepage": "http://thrift.apache.org"
+                }
+            ],
+            "description": "Apache Thrift RPC system",
+            "homepage": "http://thrift.apache.org/",
+            "time": "2015-09-25 06:30:29"
+        }
+    ],
     "packages-dev": [
         {
             "name": "doctrine/instantiator",
@@ -529,16 +567,16 @@
         },
         {
             "name": "phpunit/phpunit-mock-objects",
-            "version": "3.0.3",
+            "version": "3.0.4",
             "source": {
                 "type": "git",
                 "url": "https://github.com/sebastianbergmann/phpunit-mock-objects.git",
-                "reference": "382c729a52b7ef682e94c73fd6868f5ee8116ba7"
+                "reference": "b28b029356e65091dfbf8c2bc4ef106ffece509e"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/sebastianbergmann/phpunit-mock-objects/zipball/382c729a52b7ef682e94c73fd6868f5ee8116ba7",
-                "reference": "382c729a52b7ef682e94c73fd6868f5ee8116ba7",
+                "url": "https://api.github.com/repos/sebastianbergmann/phpunit-mock-objects/zipball/b28b029356e65091dfbf8c2bc4ef106ffece509e",
+                "reference": "b28b029356e65091dfbf8c2bc4ef106ffece509e",
                 "shasum": ""
             },
             "require": {
@@ -581,7 +619,7 @@
                 "mock",
                 "xunit"
             ],
-            "time": "2015-10-18 07:55:54"
+            "time": "2015-11-09 15:37:17"
         },
         {
             "name": "sebastian/comparator",

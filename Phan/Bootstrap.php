@@ -7,9 +7,15 @@ error_reporting(E_ALL);
 // Take as much memory as we need
 ini_set("memory_limit", '-1');
 
+// Add generated PHP code directory to the path
+set_include_path(get_include_path()
+    .PATH_SEPARATOR.__DIR__.'/../gen-php/Phan/');
+
+
 // Add the root to the include path
 define('CLASS_DIR', __DIR__ . '/../');
 set_include_path(get_include_path().PATH_SEPARATOR.CLASS_DIR);
+
 
 // Use the composer autoloader
 require_once(__DIR__.'/../vendor/autoload.php');
